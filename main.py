@@ -22,7 +22,7 @@ class Instrumenter:
         while match is not None:
 
             self._instrumentedFileContent += fileContent[0: match.end()]
-            fileContent = fileContent[match.end() + 1 : len(fileContent) - 1]
+            fileContent = fileContent[match.end() + 1 : len(fileContent)]
 
             value = match.group()
             toIgnore1 = re.compile('^[\t ]?(if|for|switch)')
@@ -33,6 +33,8 @@ class Instrumenter:
                 self._instrumentedFileContent += self._instrumentationString
 
             match = methodStartPatternObj.search(fileContent)
+
+        self._instrumentedFileContent += fileContent
 
         if self._instrumentedFileContent != '':
 
