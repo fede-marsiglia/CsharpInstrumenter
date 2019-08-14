@@ -5,8 +5,8 @@ class Instrumenter:
 
     def __init__(self):
 
-        self._methodStartPattern = r'\w+[\t ]?\(.*?\)*?\n?.*?\{'
-        self._instrumentationString = '\n\n LogBroker.Instance.TraceDebug(\'sto eseguendo \' + ' \
+        self._methodStartPattern = r'\w+[\t ]+\w+[\t ]?\(.*?\)*?\n?.*?\{'
+        self._instrumentationString = '\n\n LogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
                                       'System.Reflection.MethodBase.GetCurrentMethod().Name) \n\n '
         self._instrumentedFileContent = ''
 
@@ -25,10 +25,14 @@ class Instrumenter:
             fileContent = fileContent[match.end() + 1 : len(fileContent)]
 
             value = match.group()
-            toIgnore1 = re.compile('^[\t ]?(if|for|switch)')
-            toIgnore2 = re.compile('[ ]new[ ]')
 
-            if not toIgnore1.match(value) and not toIgnore2.match(value):
+            toIgnore1 = re.compile(r'^[\t ]?(while|if|for|switch)')
+            toIgnore2 = re.compile(r'ForEach')
+            toIgnore3 = re.compile(r'[ ]?new[ ]?')
+
+            if not toIgnore1.match(value) and not \
+                   toIgnore2.match(value) and not \
+                   toIgnore3.match(value):
 
                 self._instrumentedFileContent += self._instrumentationString
 
