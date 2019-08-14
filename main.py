@@ -22,7 +22,7 @@ class Instrumenter:
         while match is not None:
 
             self._instrumentedFileContent += fileContent[0: match.end()]
-            fileContent = fileContent[match.end() + 1 : len(fileContent)]
+            fileContent = fileContent[match.end() : len(fileContent)]
 
             value = match.group()
 
@@ -43,6 +43,7 @@ class Instrumenter:
         if self._instrumentedFileContent != '':
 
             file = open(pathToFile, 'w')
+            file.write('using Comm.Log; \n\n')
             file.write(self._instrumentedFileContent)
             file.close()
             self._instrumentedFileContent = ''
