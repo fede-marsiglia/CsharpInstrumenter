@@ -7,7 +7,7 @@ class Instrumenter:
 
         self._methodStartPattern = r'\w+[\t ]+\w+[\t ]?\(.*?\)*?\n?.*?\{'
         self._instrumentationString = '\n\n LogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
-                                      'System.Reflection.MethodBase.GetCurrentMethod().Name) \n\n '
+                                      'System.Reflection.MethodBase.GetCurrentMethod().Name); \n\n '
         self._instrumentedFileContent = ''
 
     def Instrument(self, pathToFile):
