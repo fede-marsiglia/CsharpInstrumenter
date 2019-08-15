@@ -5,9 +5,9 @@ class Instrumenter:
 
     def __init__(self):
 
-        self._methodStartPattern = r'\w+[\t ]+\w+[\t ]?\(.*?\)*?\n?.*?\{'
-        self._instrumentationString = '\n\n LogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
-                                      'System.Reflection.MethodBase.GetCurrentMethod().Name); \n\n '
+        self._methodStartPattern = r'\w+[\t ]+\w+[\t ]?\(.*?\)\n[ ]+\{'
+        self._instrumentationString = '\n\t\t\tLogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
+                                      'System.Reflection.MethodBase.GetCurrentMethod().Name, traceDate : true);\n '
         self._instrumentedFileContent = ''
 
     def Instrument(self, pathToFile):
@@ -26,7 +26,7 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore1 = re.compile(r'^[\t ]?(while|if|for|switch)')
+            toIgnore1 = re.compile(r'^[\t ]?(while|if|for|switch|catch)')
             toIgnore2 = re.compile(r'ForEach')
             toIgnore3 = re.compile(r'[ ]?new[ ]?')
 
