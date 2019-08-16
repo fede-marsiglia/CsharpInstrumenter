@@ -17,7 +17,7 @@ class Instrumenter:
         file.close()
 
         methodStartPatternObj = re.compile(self._methodStartPattern)
-        match = methodStartPatternObj.search(fileContent)
+        match = methodStartPatternObj.search(fileContent, re.DOTALL)
 
         while match is not None:
 

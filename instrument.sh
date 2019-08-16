@@ -1,8 +1,12 @@
-for d in `find ../../Documents/byme_app_mobile -maxdepth 1 -type d`
-do 
-	if [[ $d != *"Xamarin"* ]]; then
-
-		python main.py `find $d -type f -iregex '.*\.cs'`
-
-	fi
-done
+python main.py `find ../../Documents/byme_app_mobile/Mobile* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/MTS* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Ip* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Linphone* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Web* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/web* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Communication -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/MQTT* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Widgets* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Nano* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/Zeroconf* -type f -iregex '.*\.cs'`
+python main.py `find ../../Documents/byme_app_mobile/ANR* -type f -iregex '.*\.cs'`
