@@ -26,9 +26,9 @@ class Instrumenter:
 
             value = match.group()
 
-            print('========================================')
-            print(value)
-            print('========================================')
+#            print('========================================')
+#            print(value)
+#            print('========================================')
 
             toIgnore1 = re.compile(r'(while|if|for|switch|catch|using|ForEach)')
             toIgnore3 = re.compile(r'\s?new\s?')
