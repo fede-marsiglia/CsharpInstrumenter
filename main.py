@@ -26,7 +26,7 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore1 = re.compile(r'^[\t ]?(while|if|for|switch|catch)')
+            toIgnore1 = re.compile(r'^[ ]?(while|if|for|switch|catch)')
             toIgnore2 = re.compile(r'ForEach')
             toIgnore3 = re.compile(r'[ ]?new[ ]?')
 
