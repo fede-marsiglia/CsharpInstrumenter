@@ -56,5 +56,5 @@ if __name__ == "__main__":
     for i in range(1, len(sys.argv)):
 
         toInstrument = sys.argv[i]
-        #print('STO PARSANDO ====> ' + toInstrument)
+        print('STO PARSANDO ====> ' + toInstrument)
         instrumenter.Instrument(toInstrument)
