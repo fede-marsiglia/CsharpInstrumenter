@@ -16,8 +16,8 @@ class Instrumenter:
         fileContent = file.read()
         file.close()
 
-        methodStartPatternObj = re.compile(self._methodStartPattern)
-        match = methodStartPatternObj.search(fileContent, re.DOTALL)
+        methodStartPatternObj = re.compile(self._methodStartPattern, re.DOTALL)
+        match = methodStartPatternObj.search(fileContent)
 
         while match is not None:
 
@@ -25,8 +25,6 @@ class Instrumenter:
             fileContent = fileContent[match.end() : len(fileContent)]
 
             value = match.group()
-
-            print(value)
 
             toIgnore1 = re.compile(r'^[ ]?(while|if|for|switch|catch)')
             toIgnore2 = re.compile(r'ForEach')
@@ -38,7 +36,7 @@ class Instrumenter:
 
                 self._instrumentedFileContent += self._instrumentationString
 
-            match = methodStartPatternObj.search(fileContent, re.DOTALL)
+            match = methodStartPatternObj.search(fileContent)
 
         self._instrumentedFileContent += fileContent
 
