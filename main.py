@@ -5,7 +5,7 @@ class Instrumenter:
 
     def __init__(self):
 
-        self._methodStartPattern = r'(\w+(\s?)+){2}\(.*?\)(\s?)+\{'
+        self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(.*?\)\s+\{'
         self._instrumentationString = '\n\t\t\tLogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
                                       'System.Reflection.MethodBase.GetCurrentMethod().Name, traceDate : true);\n '
         self._instrumentedFileContent = ''
@@ -16,7 +16,7 @@ class Instrumenter:
         fileContent = file.read()
         file.close()
 
-        methodStartPatternObj = re.compile(self._methodStartPattern, re.DOTALL)
+        methodStartPatternObj = re.compile(self._methodStartPattern)
         match = methodStartPatternObj.search(fileContent)
 
         while match is not None:
@@ -26,12 +26,14 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore1 = re.compile(r'^[ ]?(while|if|for|switch|catch)')
-            toIgnore2 = re.compile(r'ForEach')
-            toIgnore3 = re.compile(r'\s+new\s+')
+            print('========================================')
+            print(value)
+            print('========================================')
+
+            toIgnore1 = re.compile(r'(while|if|for|switch|catch|using|ForEach)')
+            toIgnore3 = re.compile(r'\s?new\s?')
 
             if not toIgnore1.match(value) and not \
-                   toIgnore2.match(value) and not \
                    toIgnore3.match(value):
 
                 self._instrumentedFileContent += self._instrumentationString
