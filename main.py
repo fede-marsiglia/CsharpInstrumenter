@@ -5,7 +5,7 @@ class Instrumenter:
 
     def __init__(self):
 
-        self._methodStartPattern = r'\w+[\t ]+\w+[\t ]?\(.*?\)\n[ ]+\{'
+        self._methodStartPattern = r'(\w+(\s?)+){2}\(.*?\)(\s?)+\{'
         self._instrumentationString = '\n\t\t\tLogBroker.Instance.TraceDebug(\"sto eseguendo \" + ' \
                                       'System.Reflection.MethodBase.GetCurrentMethod().Name, traceDate : true);\n '
         self._instrumentedFileContent = ''
@@ -17,7 +17,7 @@ class Instrumenter:
         file.close()
 
         methodStartPatternObj = re.compile(self._methodStartPattern)
-        match = methodStartPatternObj.search(fileContent)
+        match = methodStartPatternObj.search(fileContent, re.DOTALL)
 
         while match is not None:
 
@@ -26,9 +26,11 @@ class Instrumenter:
 
             value = match.group()
 
+            print(value)
+
             toIgnore1 = re.compile(r'^[ ]?(while|if|for|switch|catch)')
             toIgnore2 = re.compile(r'ForEach')
-            toIgnore3 = re.compile(r'[ ]?new[ ]?')
+            toIgnore3 = re.compile(r'\s+new\s+')
 
             if not toIgnore1.match(value) and not \
                    toIgnore2.match(value) and not \
@@ -36,7 +38,7 @@ class Instrumenter:
 
                 self._instrumentedFileContent += self._instrumentationString
 
-            match = methodStartPatternObj.search(fileContent)
+            match = methodStartPatternObj.search(fileContent, re.DOTALL)
 
         self._instrumentedFileContent += fileContent
 
@@ -56,5 +58,5 @@ if __name__ == "__main__":
     for i in range(1, len(sys.argv)):
 
         toInstrument = sys.argv[i]
-        print('STO PARSANDO ====> ' + toInstrument)
+        #print('STO PARSANDO ====> ' + toInstrument)
         instrumenter.Instrument(toInstrument)
