@@ -1,7 +1,6 @@
 python main.py `find ../../Documents/byme_app_mobile/Mobile* -type f -iregex '.*\.cs'`
 python main.py `find ../../Documents/byme_app_mobile/MTS* -type f -iregex '.*\.cs'`
 python main.py `find ../../Documents/byme_app_mobile/Ip* -type f -iregex '.*\.cs'`
-python main.py `find ../../Documents/byme_app_mobile/Linphone* -type f -iregex '.*\.cs'`
 python main.py `find ../../Documents/byme_app_mobile/Web* -type f -iregex '.*\.cs'`
 python main.py `find ../../Documents/byme_app_mobile/web* -type f -iregex '.*\.cs'`
 python main.py `find ../../Documents/byme_app_mobile/Communication -type f -iregex '.*\.cs'`
