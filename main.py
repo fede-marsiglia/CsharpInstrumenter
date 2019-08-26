@@ -35,7 +35,7 @@ class Instrumenter:
 
         self._instrumentedFileContent += fileContent
 
-        if self._instrumentedFileContent != '':
+        if '' != self._instrumentedFileContent:
 
             file = open(pathToFile, 'w')
             file.write('using Comm.Log; \n\n')
