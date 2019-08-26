@@ -25,11 +25,9 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore1 = re.compile(r'(while|if|for|switch|catch|using|ForEach)')
-            toIgnore3 = re.compile(r'\s?new\s?')
+            toIgnore = re.compile(r'(while|if|for|switch|catch|using|ForEach|\s?new\s?)')
 
-            if not toIgnore1.match(value) and not \
-                   toIgnore3.match(value):
+            if not toIgnore.match(value):
 
                 self._instrumentedFileContent += self._instrumentationString
 
