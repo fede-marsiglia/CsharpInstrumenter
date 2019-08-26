@@ -5,8 +5,8 @@ class Instrumenter:
 
     def __init__(self):
 
-        self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(.*?\)\s+\{'
-        self._instrumentationString = '\n\t\t\tLogBroker.Instance.TraceDebug(\"----SONO IO---- \" , traceDate : true);\n '
+        self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(.*?\)()\s+\{'
+        self._instrumentationString = '\n\t\t\tLogBroker.Instance.TraceDebug(\"=========> IN ESECUZIONE \");\n '
         self._instrumentedFileContent = ''
 
     def Instrument(self, pathToFile):
@@ -24,10 +24,6 @@ class Instrumenter:
             fileContent = fileContent[match.end() : len(fileContent)]
 
             value = match.group()
-
-#            print('========================================')
-#            print(value)
-#            print('========================================')
 
             toIgnore1 = re.compile(r'(while|if|for|switch|catch|using|ForEach)')
             toIgnore3 = re.compile(r'\s?new\s?')
