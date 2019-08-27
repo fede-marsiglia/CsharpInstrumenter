@@ -5,7 +5,7 @@ fi
 
 python="python3"
 if ! [ -x "$(command -v python3)" ]; then
-  echo 'Ppython is not installed.'
+  echo 'Python is not installed.'
 fi
 
 orig_dir="$PWD"
@@ -27,5 +27,8 @@ $python $orig_dir/main.py `find ./Widgets* -regextype grep -type f -iregex $patt
 $python $orig_dir/main.py `find ./Nano* -regextype grep -type f -iregex $pattern`
 $python $orig_dir/main.py `find ./Zeroconf* -type f -iregex $pattern`
 $python $orig_dir/main.py `find ./ANR* -regextype grep -type f -iregex $pattern`
+
+git checkout `find -type f -iname 'logbroker\.cs'`  
+git checkout `find -type f -iname 'fourthphase\.xaml\.cs'`  
 
 cd $orig_dir
