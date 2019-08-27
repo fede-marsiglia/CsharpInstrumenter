@@ -25,7 +25,7 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore = re.compile(r'(while|if|for|switch|catch|using|ForEach|\s?new\s?)')
+            toIgnore = re.compile(r'(while|if|else if|for|switch|catch|using|ForEach|\s?new\s?)')
 
             if not toIgnore.match(value):
 
