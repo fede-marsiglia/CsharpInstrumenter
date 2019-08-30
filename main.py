@@ -2,12 +2,11 @@ import sys
 import re
 
 class Instrumenter:
+
     def __init__(self):
 
         self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(.*?\)()\s+\{'
-        self._instrumentationString = """
-        Comm.Log.LogBroker.Instance.TraceDebug($"INSTRUMENTER: GC Total Memory = {System.GC.GetTotalMemory(false)}");
-"""
+        self._instrumentationString = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"-INSTRUMENTER-)\");\n"
         self._instrumentedFileContent = ''
 
     def Instrument(self, pathToFile):
@@ -26,7 +25,7 @@ class Instrumenter:
 
             value = match.group()
 
-            toIgnore = re.compile(r'(while|if|for|switch|catch|using|ForEach|\s?new\s?)')
+            toIgnore = re.compile(r'(while|if|else if|for|switch|catch|using|ForEach|\s?new\s?)')
 
             if not toIgnore.match(value):
 
