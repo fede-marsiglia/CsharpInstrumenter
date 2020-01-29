@@ -6,7 +6,7 @@ class Instrumenter:
     def __init__(self):
 
         self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(([a-zA-Z1-9_,.=<> \s]+)?\)\s*\{'
-        self._instrumentationString = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"-INSTRUMENTER- \" + Duid);\n"
+        self._instrumentationString = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"-INSTRUMENTER-\");\n"
         self._instrumentedFileContent = ''
 
     def Instrument(self, pathToFile):
