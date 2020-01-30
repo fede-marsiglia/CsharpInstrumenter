@@ -21,8 +21,11 @@ do
 	python $orig_dir/main.py `find $d -regextype grep -type f -iregex $pattern`
 done
 
-
 git checkout `find -type f -iname 'logbroker\.cs'`  
 git checkout `find -type f -iname 'fourthphase\.xaml\.cs'`  
+git checkout `find -type f -iname 'ipcclient\.cs'`  
+git checkout `find -type f -name  'SetPointPage\.xaml\.cs'`  
+
+python $orig_dir/mainIpcClient.py `find . -regextype grep -type f -iname ipcclient.cs`
 
 cd $orig_dir
