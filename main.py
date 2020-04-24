@@ -6,8 +6,12 @@ class Instrumenter:
     def __init__(self):
 
         self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(([\[\]a-zA-Z1-9_,.=<>\"\s ]+)?\)\s*\{'
-        self._instrumentationString = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"-INSTRUMENTER-\");\n"
+        self._stopWatchStart = "\n\t\t\tvar stopWatch = new System.Diagnostics.Stopwatch(); \n\t\t\t stopWatch.Start();"
+        self._stopWatchStop = "\n\t\t\tstopWatch.Stop(); \n\t\t\tvar ts = stopWatch.Elapsed;"
+        self._elapsedTime = "\n\t\t\tvar elapsedTime = System.String.Format(\"{0:00}:{1:00}:{2:00}.{3:00}\", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);"
+        self._logTimeSpent = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"Runtime =>\" + elapsedTime);\n"
         self._instrumentedFileContent = ''
+
 
     def GetFuncEnd(self, fileContent):
 
@@ -57,12 +61,14 @@ class Instrumenter:
                 startToFuncStart = fileContent[0 : match.end()]
 
                 self._instrumentedFileContent += startToFuncStart
-                self._instrumentedFileContent += self._instrumentationString
+                self._instrumentedFileContent += self._stopWatchStart
 
                 funcEnd = self.GetFuncEnd(fileContent[match.end() : len(fileContent)]) + match.end()
 
                 self._instrumentedFileContent += fileContent[match.end() : funcEnd]
-                self._instrumentedFileContent += self._instrumentationString
+                self._instrumentedFileContent += self._stopWatchStop
+                self._instrumentedFileContent += self._elapsedTime
+                self._instrumentedFileContent += self._logTimeSpent
 
                 fileContent = fileContent[funcEnd : len(fileContent)]
             else:
