@@ -15,17 +15,12 @@ python $orig_dir/main.py `find ./MQTT* -regextype grep -type f -iregex $pattern`
 python $orig_dir/main.py `find ./Nano* -regextype grep -type f -iregex $pattern`
 python $orig_dir/main.py `find ./Zeroconf* -type f -iregex $pattern`
 python $orig_dir/main.py `find ./ByMe_Lib -regextype grep -type f -iregex $pattern`
-
-for d in  `find ./WidgetsLib_ -maxdepth 1 -type d`
-do 
-	python $orig_dir/main.py `find $d -regextype grep -type f -iregex $pattern`
-done
+python $orig_dir/main.py `find ./WidgetsLib_ -regextype grep -type f -iregex $pattern`
 
 git checkout `find -type f -iname 'logbroker\.cs'`  
 git checkout `find -type f -iname 'fourthphase\.xaml\.cs'`  
 git checkout `find -type f -iname 'ipcclient\.cs'`  
 git checkout `find -type f -name  'SetPointPage\.xaml\.cs'`  
-
-python $orig_dir/mainIpcClient.py `find . -regextype grep -type f -iname ipcclient.cs`
+git checkout `find -type f -name  'Extensions\.cs'`  
 
 cd $orig_dir

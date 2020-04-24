@@ -9,6 +9,35 @@ class Instrumenter:
         self._instrumentationString = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"-INSTRUMENTER-\");\n"
         self._instrumentedFileContent = ''
 
+    def GetFuncEnd(self, fileContent):
+
+        open = 1
+
+        lastOpen = 0
+        lastClsd = 0
+
+        while open > 0:
+
+            foundOpen = fileContent.find('{', lastOpen + 1)
+            foundClose = fileContent.find('}', lastClsd + 1)
+
+            if foundClose != -1 and foundOpen != -1:
+
+                if foundOpen < foundClose:
+                    open += 1
+                    lastOpen = foundOpen
+                else:
+                    open -= 1
+                    lastClsd = foundClose
+
+            elif foundClose != -1:
+
+                lastClsd = foundClose
+                break
+
+        return lastClsd
+
+
     def Instrument(self, pathToFile):
 
         file = open(pathToFile, 'r')
@@ -20,19 +49,29 @@ class Instrumenter:
 
         while match is not None:
 
-            self._instrumentedFileContent += fileContent[0: match.end()]
-            fileContent = fileContent[match.end() : len(fileContent)]
-
-            value = match.group()
-
             toIgnore = re.compile(r'(while|if|else if|for|switch|catch|using|ForEach|\s?new\s?)')
 
-            if not toIgnore.match(value):
+            # is the match the start of a method?
+            if not toIgnore.match(match.group()):
 
+                startToFuncStart = fileContent[0 : match.end()]
+
+                self._instrumentedFileContent += startToFuncStart
                 self._instrumentedFileContent += self._instrumentationString
+
+                funcEnd = self.GetFuncEnd(fileContent[match.end() : len(fileContent)]) + match.end()
+
+                self._instrumentedFileContent += fileContent[match.end() : funcEnd]
+                self._instrumentedFileContent += self._instrumentationString
+
+                fileContent = fileContent[funcEnd : len(fileContent)]
+            else:
+                fileContent = fileContent[match.end(): len(fileContent)]
 
             match = methodStartPatternObj.search(fileContent)
 
+        # get the rest of the original file and add
+        # it's content to the instrumented one
         self._instrumentedFileContent += fileContent
 
         if '' != self._instrumentedFileContent:
