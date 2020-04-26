@@ -1,25 +1,37 @@
 import sys
 import re
 
-
 class Instrumenter:
 
     def __init__(self):
 
         self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(([\[\]a-zA-Z1-9_,.=<>\"\s ]+)?\)\s*\{'
         self._stopWatchStart = "\n\t\t\tvar stopWatch = new System.Diagnostics.Stopwatch(); \n\t\t\t stopWatch.Start();"
-        self._stopWatchStop = "\n\t\t\tstopWatch.Stop(); \n\t\t\tvar ts = stopWatch.Elapsed;"
+        self._stopWatchStop = "\n\t\t{\n\t\t\tstopWatch.Stop(); \n\t\t\tvar ts = stopWatch.Elapsed;"
         self._elapsedTime = "\n\t\t\tvar elapsedTime = System.String.Format(\"{0:00}:{1:00}:{2:00}.{3:00}\", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);"
         self._logTimeSpent = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"Runtime =>\" + elapsedTime);\n\t\t"
         self._instrumentedFileContent = ''
 
-    def GetFuncEnd(self, fileContent):
+    def GetFuncExitPoints(self, methodStartToFileEnd):
 
-        ret = [-1]
+        lastClsd = self.FindMethodClosingBrace(methodStartToFileEnd)
+        retRx = re.compile('\sreturn(;|\s)')
+        match = retRx.finditer(methodStartToFileEnd[:lastClsd])
+
+        ret = []
+        for x in retRx.finditer(methodStartToFileEnd[:lastClsd]):
+                ret.append(x.span()[0])
+
+        if len(ret) == 0:
+            ret.append(lastClsd)
+
+        return ret
+
+    def FindMethodClosingBrace(self, fileContent):
+
         open = 1
-
-        lastOpen = 0
-        lastClsd = 0
+        lastOpen = -1
+        lastClsd = -1
 
         while open > 0:
 
@@ -37,18 +49,7 @@ class Instrumenter:
             else:
                 break
 
-        ret = lastClsd
-
-        retRx = re.compile('\sreturn(;|\s)')
-        match = retRx.finditer(fileContent[:ret])
-
-        if match is not None:
-
-            ret = []
-            for m in match:
-                ret.append(m.span()[0])
-
-        return ret
+        return lastClsd
 
     def Instrument(self, pathToFile):
 
@@ -67,33 +68,30 @@ class Instrumenter:
             if not toIgnore.match(match.group()):
 
                 methodBodyStart = match.end()
+                self._instrumentedFileContent += fileContent[0: methodBodyStart]
 
-                startToFuncStart = fileContent[0: methodBodyStart]
-                funcStartToEOF = fileContent[methodBodyStart : len(fileContent)]
-
-                self._instrumentedFileContent += startToFuncStart
                 self._instrumentedFileContent += self._stopWatchStart
+                fileContent = fileContent[methodBodyStart : len(fileContent)]
 
-                funcExitPoints = self.GetFuncEnd(funcStartToEOF)
-                prev = methodBodyStart
+                funcExitPoints = self.GetFuncExitPoints(fileContent)
+
+                prev = 0
 
                 for x in funcExitPoints:
 
-                    x += methodBodyStart
                     self._instrumentedFileContent += fileContent[prev : x]
                     self._instrumentedFileContent += self._stopWatchStop
                     self._instrumentedFileContent += self._elapsedTime
                     self._instrumentedFileContent += self._logTimeSpent
                     prev = x
 
-                fileContent = fileContent[x : len(fileContent)]
+                fileContent = fileContent[prev : len(fileContent)]
             else:
+                self._instrumentedFileContent += fileContent[0: match.end()]
                 fileContent = fileContent[match.end(): len(fileContent)]
 
             match = methodStartPattern.search(fileContent)
 
-        # get the rest of the original file and add
-        # it's content to the instrumented one
         self._instrumentedFileContent += fileContent
 
         if '' != self._instrumentedFileContent:
