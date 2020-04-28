@@ -8,7 +8,7 @@ class Instrumenter:
         self._methodStartPattern = r'\w+[ ]*(\<.*?\>)?[ ]+\w+[ ]*\(([\[\]a-zA-Z1-9_,.=<>\"\s ]+)?\)\s*\{'
         self._stopWatchStart = "\n\t\t\tvar stopWatch = new System.Diagnostics.Stopwatch(); \n\t\t\t stopWatch.Start();"
         self._elapsedTime = "\n\t\t\tSystem.String.Format(\"{0:00}:{1:00}:{2:00}.{3:00}\", stopWatch.Elapsed.Hours, stopWatch.Elapsed.Minutes, stopWatch.Elapsed.Seconds)"
-        self._logTimeSpent = "\n\t\t\tComm.Log.LogBroker.Instance.TraceDebug(\"Runtime =>\" + " + self._elapsedTime + ");\n\t\t"
+        self._logTimeSpent = "\n\t\t{Comm.Log.LogBroker.Instance.TraceDebug(\"Runtime =>\" + " + self._elapsedTime + ");\n\t\t"
         self._instrumentedFileContent = ''
 
     def GetFuncExitPoints(self, methodStartToFileEnd):
@@ -32,7 +32,7 @@ class Instrumenter:
         lastOpen = -1
         lastClsd = -1
 
-        searchForOpen = True;
+        searchForOpen = True
 
         while open > 0:
 
@@ -73,10 +73,9 @@ class Instrumenter:
 
                 methodBodyStart = match.end()
                 self._instrumentedFileContent += fileContent[0: methodBodyStart]
-
                 self._instrumentedFileContent += self._stopWatchStart
-                fileContent = fileContent[methodBodyStart : len(fileContent)]
 
+                fileContent = fileContent[methodBodyStart : len(fileContent)]
                 funcExitPoints = self.GetFuncExitPoints(fileContent)
 
                 prev = 0
@@ -85,11 +84,22 @@ class Instrumenter:
 
                     self._instrumentedFileContent += fileContent[prev : x]
                     self._instrumentedFileContent += self._logTimeSpent
-                    prev = x
+
+                    afterExit = fileContent[x : funcExitPoints[len(funcExitPoints) - 1]].find(';')
+
+                    if afterExit >= 0:
+
+                        end = x + afterExit + 1
+                        self._instrumentedFileContent += fileContent[x : end]
+                        self._instrumentedFileContent += '}'
+                        prev = end
+                    else:
+                        self._instrumentedFileContent += '}'
+                        prev = x
 
                 fileContent = fileContent[prev : len(fileContent)]
             else:
-                self._instrumentedFileContent += fileContent[0: match.end()]
+                self._instrumentedFileContent += fileContent[: match.end()]
                 fileContent = fileContent[match.end(): len(fileContent)]
 
             match = methodStartPattern.search(fileContent)
@@ -97,6 +107,7 @@ class Instrumenter:
         self._instrumentedFileContent += fileContent
 
         if '' != self._instrumentedFileContent:
+
             file = open(pathToFile, 'w')
             file.write(self._instrumentedFileContent)
             file.close()
