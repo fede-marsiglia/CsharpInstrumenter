@@ -8,6 +8,10 @@ class Instrumenter:
         self._class = r'((public)|(private)|(protected))\s*(sealed)?\s*(partial)?\s*class\s+(\w+).*?\{'
         self._classRx = re.compile(self._class, re.DOTALL)
         self._instrumentedFileContent = ''
+        self._alloc = '\n#if DEBUG\n \t\tComm.Common.Utils.Alloc(GetType().ToString()); \n#endif\n'
+        self._dealloc = '\n#if DEBUG\n \t\tComm.Common.Utils.Dealloc(GetType().ToString()); \n#endif\n'
+        self._bodyOpening = r'.*?(\{)|(=>)'
+        self._bodyOpeningRx = re.compile(self._bodyOpening, re.DOTALL)
 
     def Instrument(self, pathToFile):
 
@@ -21,27 +25,32 @@ class Instrumenter:
 
             count = len(classMatch.groups())
             className = classMatch.group(count)
-            constructor = r'((public)|(private)|(protected))\s+' + className + '\s*(\(.*?\))?(\s*\:.*?)?\s*((\{)|(=>))'
-            constructorRx = re.compile(constructor, re.DOTALL)
 
             self._instrumentedFileContent += fileContent[0: classMatch.end()]
-            self._instrumentedFileContent += "\n\t\t~" + className + '() => Comm.Common.Utils.Dealloc(GetType().ToString());'
+            self._instrumentedFileContent += "\n\t\t~" + className + '() {' + self._dealloc + '}'
             fileContent = fileContent[classMatch.end(): len(fileContent)]
 
+            constructor = r'((public)|(private)|(protected))\s+' + className + r'(\s*\(.*?\).*?)((\{)|(=>.*?;))'
+            constructorRx = re.compile(constructor, re.DOTALL)
             constructorMatch = constructorRx.search(fileContent)
 
             if constructorMatch is None:
 
-                self._instrumentedFileContent += "\n\t\t public " + className + "() { Comm.Common.Utils.Alloc(GetType().ToString()); }"
+                self._instrumentedFileContent += '\n\t\t public ' + className + '() {' + self._alloc + '}'
 
             else:
 
                 while constructorMatch is not None:
 
-                    constructorBodyStart = constructorMatch.end()
-                    self._instrumentedFileContent += fileContent[0: constructorBodyStart]
-                    self._instrumentedFileContent += "\n\t\t\t Comm.Common.Utils.Alloc(GetType().ToString());"
-                    fileContent = fileContent[constructorBodyStart : len(fileContent)]
+                    constructorBodyStart = constructorMatch.span(5)[1]
+                    bodyContent = constructorMatch.group(6)
+
+                    if constructorMatch.group(0).find('=>') != -1:
+                        self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc + bodyContent.replace('=>', '') + '\n\t\t}'
+                    else:
+                        self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc
+
+                    fileContent = fileContent[constructorMatch.end() : len(fileContent)]
                     constructorMatch = constructorRx.search(fileContent)
 
             classMatch = self._classRx.search(fileContent)
@@ -63,5 +72,5 @@ if __name__ == "__main__":
 
     for i in range(1, len(sys.argv)):
         toInstrument = sys.argv[i]
-        print('STO PARSANDO ====> ' + toInstrument)
+        print('Parsing => ' + toInstrument)
         instrumenter.Instrument(toInstrument)
