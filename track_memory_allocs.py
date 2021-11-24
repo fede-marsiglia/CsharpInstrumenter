@@ -27,31 +27,33 @@ class Instrumenter:
             className = classMatch.group(count)
 
             self._instrumentedFileContent += fileContent[0: classMatch.end()]
-            self._instrumentedFileContent += "\n\t\t~" + className + '() {' + self._dealloc + '}'
             fileContent = fileContent[classMatch.end(): len(fileContent)]
+
+            self._instrumentedFileContent += "\n\t\t~" + className + '() {' + self._dealloc + '}\n\n'
+
+            constructorDefault = className + r'(\s*\(\s*\))'
+            constructorDefaultRx = re.compile(constructorDefault, re.DOTALL)
+            constructorDefaultMatch = constructorDefaultRx.search(fileContent)
+
+            if constructorDefaultMatch is None:
+               self._instrumentedFileContent += "\n\t\t" + className + '() { }'
 
             constructor = r'((public)|(private)|(protected))\s+' + className + r'(\s*\(.*?\).*?)((\{)|(=>.*?;))'
             constructorRx = re.compile(constructor, re.DOTALL)
             constructorMatch = constructorRx.search(fileContent)
 
-            if constructorMatch is None:
+            while constructorMatch is not None:
 
-                self._instrumentedFileContent += '\n\t\t public ' + className + '() {' + self._alloc + '}'
+                constructorBodyStart = constructorMatch.span(5)[1]
+                bodyContent = constructorMatch.group(6)
 
-            else:
+                if constructorMatch.group(0).find('=>') != -1:
+                    self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc + bodyContent.replace('=>', '') + '\n\t\t}'
+                else:
+                    self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc
 
-                while constructorMatch is not None:
-
-                    constructorBodyStart = constructorMatch.span(5)[1]
-                    bodyContent = constructorMatch.group(6)
-
-                    if constructorMatch.group(0).find('=>') != -1:
-                        self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc + bodyContent.replace('=>', '') + '\n\t\t}'
-                    else:
-                        self._instrumentedFileContent += fileContent[0: constructorBodyStart] + '{' + self._alloc
-
-                    fileContent = fileContent[constructorMatch.end() : len(fileContent)]
-                    constructorMatch = constructorRx.search(fileContent)
+                fileContent = fileContent[constructorMatch.end() : len(fileContent)]
+                constructorMatch = constructorRx.search(fileContent)
 
             classMatch = self._classRx.search(fileContent)
 
