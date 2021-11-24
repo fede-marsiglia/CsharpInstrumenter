@@ -17,6 +17,7 @@ python3 $orig_dir/track_memory_allocs.py `find ./MQTT* -regextype grep -type f -
 python3 $orig_dir/track_memory_allocs.py `find ./Nano* -regextype grep -type f -iregex $pattern`
 python3 $orig_dir/track_memory_allocs.py `find ./Zeroconf* -type f -iregex $pattern`
 python3 $orig_dir/track_memory_allocs.py `find ./ByMe_Lib -regextype grep -type f -iregex $pattern`
+python3 $orig_dir/track_memory_allocs.py `find ./PlatformsLib* -regextype grep -type f -iregex $pattern`
 python3 $orig_dir/track_memory_allocs.py `find ./WidgetsLib_ -regextype grep -type f -iregex $pattern`
 
 git checkout './ByMe_Lib/ByMe_Lib/Resx/AppResources.Designer.cs'  
